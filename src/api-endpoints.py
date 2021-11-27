@@ -10,6 +10,12 @@ def getInterfaces(hostname: str):
     data = cisco.getInterfaces()
     return (str(data), 200)
 
+@app.route('/<hostname>/interfacescreate', methods=["GET"])
+def createInterfaces(hostname: str):
+    cisco = Cisco(hostname, "admin", "C1sco12345")
+    data = cisco.createInterface()
+    return (str(data), 200)
+
 
 
 
