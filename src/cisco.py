@@ -1,5 +1,6 @@
 from ncclient import manager
 from ncclient.xml_ import *
+from netmiko import ConnectHandler
 
 class Cisco:
 
@@ -7,9 +8,14 @@ class Cisco:
         self.hostname = hostname
         self.username = username
         self.password = password
-        self.port = 830
-        #self.connection = self.__createConnection()
 
+class CiscoNC(Cisco):
+
+    def __init__(self, port, **kwargs):
+        super(CiscoNC, self).__init__(**kwargs)
+        self.port = port
+
+    # Create a netconf connection to the device
     def __createConnection(self):
         return manager.connect(
             host=self.hostname,
@@ -66,3 +72,25 @@ class Cisco:
         if response.ok:
             return (str(response), 200)
         return (response.error.info, 500)
+
+class CiscoSSH(Cisco):
+
+    def __init__(self, port, **kwargs):
+        super(CiscoSSH, self).__init__(**kwargs)
+        self.port = port
+
+    def __createConnection(self):
+        device = {
+            'device_type': 'cisco_xr',
+            'host': self.hostname,
+            'username': self.username,
+            'password': self.password,
+            'port': 22,
+        }
+        return ConnectHandler(**device)
+
+    def getInterfaces(self):
+        with self.__createConnection() as con:
+            con.send_command('term len 0')
+            response = con.send_command('show ip int br')
+        return (response, 200)
