@@ -51,4 +51,18 @@ class Cisco:
         return (response.error.info, 500)
 
     def deleteInterface(self):
-        pass
+        body = """<?xml version="1.0" encoding="UTF-8"?>
+        <nc:config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+            <interface-configurations xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-ifmgr-cfg">
+                <interface-configuration  nc:operation="delete">
+                    <interface-name>Loopback66</interface-name>
+                    <active>act</active>
+                </interface-configuration>
+            </interface-configurations>
+        </nc:config>"""
+        with self.__createConnection() as con:
+            response = con.edit_config(config=body, target="candidate", default_operation='merge')
+            con.commit()
+        if response.ok:
+            return (str(response), 200)
+        return (response.error.info, 500)
