@@ -4,10 +4,11 @@ from netmiko import ConnectHandler
 
 class Cisco:
 
-    def __init__(self, hostname, username, password):
+    def __init__(self, hostname, username, password, dryRun=False):
         self.hostname = hostname
         self.username = username
         self.password = password
+        self.dryRun = dryRun
 
 class CiscoNC(Cisco):
 
@@ -32,9 +33,6 @@ class CiscoNC(Cisco):
         if response.ok:
             return (response.data_xml, 200)
         return (response.error.info, 500)
-    
-    def patchInterface(self):
-        pass
 
     def createInterface(self):
         body = """<?xml version="1.0" encoding="UTF-8"?>
@@ -90,7 +88,12 @@ class CiscoSSH(Cisco):
         return ConnectHandler(**device)
 
     def getInterfaces(self):
-        with self.__createConnection() as con:
-            con.send_command('term len 0')
-            response = con.send_command('show ip int br')
-        return (response, 200)
+        commands = [
+            "term len 0",
+            "show ip int br"
+        ]
+        if self.dryRun: return commands
+        with self.__createConnection() as con:            
+            for cmd in commands:
+                response = con.send_command(cmd) 
+        return response

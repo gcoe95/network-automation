@@ -43,6 +43,7 @@ def deleteInterfaces(hostname:str, interface: str):
 @app.route('/ssh/<hostname>/interfaces', methods=["GET"])
 def getInterfacesSSH(hostname: str):
     device = {
+        "dryRun": False,
         "hostname": hostname,
         "username": "admin",
         "password": "C1sco12345",
