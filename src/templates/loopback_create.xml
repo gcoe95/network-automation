@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nc:config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <interface-configurations xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-ifmgr-cfg">
+        <interface-configuration>
+            <active>act</active>
+            <interface-name>{{ name }}</interface-name>
+            <interface-virtual />
+            <description>{{ description }}</description>
+        </interface-configuration>
+    </interface-configurations>
+</nc:config>

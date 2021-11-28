@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nc:config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
+    <interface-configurations xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-ifmgr-cfg">
+        <interface-configuration  nc:operation="delete">
+            <interface-name>{{ name }}</interface-name>
+            <active>act</active>
+        </interface-configuration>
+    </interface-configurations>
+</nc:config>

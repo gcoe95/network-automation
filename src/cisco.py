@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+from jinja2 import Environment, FileSystemLoader
 from ncclient import manager
 from ncclient.xml_ import *
 from netmiko import ConnectHandler
@@ -35,18 +37,7 @@ class CiscoNC(Cisco):
         return (response.error.info, 500)
 
     def createInterface(self):
-        body = """<?xml version="1.0" encoding="UTF-8"?>
-        <nc:config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
-            <interface-configurations xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-ifmgr-cfg">
-                <interface-configuration>
-                    <active>act</active>
-                    <interface-name>Loopback66</interface-name>
-                    <interface-virtual />
-                    <description>Created via NETCONF - GC</description>
-                </interface-configuration>
-            </interface-configurations>
-        </nc:config>"""
-        
+        body = self.getData("loopback_create.xml", {"name": "Loopback66", "description": "Jinja2 Description"})        
         with self.__createConnection() as con:
             response = con.edit_config(config=body, target="candidate", default_operation='merge')
             con.commit()
@@ -55,21 +46,21 @@ class CiscoNC(Cisco):
         return (response.error.info, 500)
 
     def deleteInterface(self):
-        body = """<?xml version="1.0" encoding="UTF-8"?>
-        <nc:config xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0">
-            <interface-configurations xmlns="http://cisco.com/ns/yang/Cisco-IOS-XR-ifmgr-cfg">
-                <interface-configuration  nc:operation="delete">
-                    <interface-name>Loopback66</interface-name>
-                    <active>act</active>
-                </interface-configuration>
-            </interface-configurations>
-        </nc:config>"""
+        body = self.getData("loopback_delete.xml", {"name": "Loopback66"}) 
         with self.__createConnection() as con:
             response = con.edit_config(config=body, target="candidate", default_operation='merge')
             con.commit()
         if response.ok:
             return (str(response), 200)
         return (response.error.info, 500)
+
+    def getData(self, templateName, params):
+        env = Environment(
+            autoescape=False,
+            loader=FileSystemLoader("./templates/"),
+            trim_blocks=False
+        )
+        return env.get_template(templateName).render(params)
 
 class CiscoSSH(Cisco):
 
