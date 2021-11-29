@@ -102,4 +102,15 @@ class CiscoSSH(Cisco):
         with self.__createConnection() as con:            
             for cmd in commands:
                 response = con.send_command(cmd) 
-        return response
+        return (self.__responseToJson(response), 200)
+
+    def __responseToJson(self, response):
+        responseTrimed = response.split('\n')[2:]
+        keys = responseTrimed[0].split()
+        interfaces = [line.split() for line in responseTrimed[1:]]
+        jsonRsp = []
+        for interfaceValues in interfaces:
+            jsonRsp.append(dict(zip(keys, interfaceValues)))
+        return jsonRsp
+
+

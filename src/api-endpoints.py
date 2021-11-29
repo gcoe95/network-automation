@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask, request, Response
+from flask import Flask, request, Response, jsonify
 from cisco import CiscoNC, CiscoSSH
 import json
 
@@ -51,8 +51,8 @@ def getInterfacesSSH(hostname: str):
         "port": 22
     }
     cisco = CiscoSSH(**device)
-    data = cisco.getInterfaces()
-    return (str(data), 200)
+    response = cisco.getInterfaces()
+    return (jsonify(response[0]), response[1])
 
 if __name__ == "__main__":
     app.run(port=8080, host="0.0.0.0")
