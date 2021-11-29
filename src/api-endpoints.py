@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from cisco import CiscoNC, CiscoSSH
 import json
 
@@ -26,8 +26,8 @@ def createInterfaces(hostname: str):
         "port": 830
     }
     cisco = CiscoNC(**device)
-    data = cisco.createInterface()
-    return (str(data), 200)
+    response = cisco.createInterface()
+    return Response(response=response[0], status=response[1], mimetype="application/xml")
 
 @app.route('/<hostname>/interfaces/<interface>', methods=["DELETE"])
 def deleteInterfaces(hostname:str, interface: str):
@@ -38,8 +38,8 @@ def deleteInterfaces(hostname:str, interface: str):
         "port": 830
     }
     cisco = CiscoNC(**device)
-    data = cisco.deleteInterface()
-    return (str(data), 200)
+    response = cisco.deleteInterface()
+    return Response(response=response[0], status=response[1], mimetype="application/xml")
 
 @app.route('/ssh/<hostname>/interfaces', methods=["GET"])
 def getInterfacesSSH(hostname: str):
