@@ -2,12 +2,19 @@
 from flask import Flask, request, Response, jsonify
 from cisco import CiscoNC, CiscoSSH
 import json
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--dry', dest='dry', action='store_true', default=False)
+dryRun = parser.parse_args().dry
 
 app = Flask(__name__)
 
 @app.route('/<hostname>/interfaces', methods=["GET"])
 def getInterfaces(hostname: str) -> Response:
+    print(dryRun)
     device = {
+        "dryRun": dryRun,
         "hostname": hostname,
         "username": "admin",
         "password": "C1sco12345",
@@ -20,6 +27,7 @@ def getInterfaces(hostname: str) -> Response:
 @app.route('/<hostname>/interfaces/<interface>', methods=["POST"])
 def createInterfaces(hostname: str, interface: str) -> Response:
     device = {
+        "dryRun": dryRun,
         "hostname": hostname,
         "username": "admin",
         "password": "C1sco12345",
@@ -32,6 +40,7 @@ def createInterfaces(hostname: str, interface: str) -> Response:
 @app.route('/<hostname>/interfaces/<interface>', methods=["DELETE"])
 def deleteInterfaces(hostname:str, interface: str) -> Response:
     device = {
+        "dryRun": dryRun,
         "hostname": hostname,
         "username": "admin",
         "password": "C1sco12345",
@@ -44,7 +53,7 @@ def deleteInterfaces(hostname:str, interface: str) -> Response:
 @app.route('/ssh/<hostname>/interfaces', methods=["GET"])
 def getInterfacesSSH(hostname: str):
     device = {
-        "dryRun": False,
+        "dryRun": dryRun,
         "hostname": hostname,
         "username": "admin",
         "password": "C1sco12345",
