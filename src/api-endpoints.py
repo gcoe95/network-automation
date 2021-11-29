@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, Response
 from cisco import CiscoNC, CiscoSSH
 import json
 
 app = Flask(__name__)
 
 @app.route('/<hostname>/interfaces', methods=["GET"])
-def getInterfaces(hostname: str):
+def getInterfaces(hostname: str) -> Response:
     device = {
         "hostname": hostname,
         "username": "admin",
@@ -14,11 +14,11 @@ def getInterfaces(hostname: str):
         "port": 830
     }
     cisco = CiscoNC(**device)
-    data = cisco.getInterfaces()
-    return (str(data), 200)
+    response = cisco.getInterfaces()
+    return Response(response=response[0], status=response[1], mimetype="application/xml")
 
-@app.route('/<hostname>/interfacescreate', methods=["GET"])
-def createInterfaces(hostname: str):
+@app.route('/<hostname>/interfaces/<interface>', methods=["POST"])
+def createInterfaces(hostname: str, interface: str) -> Response:
     device = {
         "hostname": hostname,
         "username": "admin",
@@ -26,11 +26,11 @@ def createInterfaces(hostname: str):
         "port": 830
     }
     cisco = CiscoNC(**device)
-    response = cisco.createInterface()
+    response = cisco.createInterface(request.json)
     return Response(response=response[0], status=response[1], mimetype="application/xml")
 
 @app.route('/<hostname>/interfaces/<interface>', methods=["DELETE"])
-def deleteInterfaces(hostname:str, interface: str):
+def deleteInterfaces(hostname:str, interface: str) -> Response:
     device = {
         "hostname": hostname,
         "username": "admin",

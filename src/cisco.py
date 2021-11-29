@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, StrictUndefined
 from ncclient import manager
 from ncclient.operations.rpc import RPCError
 from ncclient.xml_ import *
@@ -33,12 +33,14 @@ class CiscoNC(Cisco):
                 return (response.xml, 201)
             return ("Internal Server Error", 500)
 
-    def createInterface(self):
-        body = self.__getData("loopback_create.xml", {"name": "Loopback66", "description": "Jinja2 Description"})        
+    def createInterface(self, params):
+        try: body = self.__getData("loopback_create.xml", params) 
+        except Exception as e: return (str(e), 400)       
         return self.__editConfig(body, "candidate")
 
     def deleteInterface(self):
-        body = self.__getData("loopback_delete.xml", {"name": "Loopback66"}) 
+        try: body = self.__getData("loopback_delete.xml", {"name": "Loopback66"}) 
+        except Exception as e: return (str(e), 400) 
         return self.__editConfig(body, "candidate")
 
     # Create a netconf connection to the device
@@ -70,7 +72,8 @@ class CiscoNC(Cisco):
         env = Environment(
             autoescape=False,
             loader=FileSystemLoader("./templates/"),
-            trim_blocks=False
+            trim_blocks=False,
+            undefined=StrictUndefined
         )
         return env.get_template(templateName).render(params)
 
