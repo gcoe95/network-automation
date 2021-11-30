@@ -98,7 +98,7 @@ class CiscoSSH(Cisco):
             "term len 0",
             "show ip int br"
         ]
-        if self.dryRun: return commands
+        if self.dryRun: return (commands, 200)
         with self.__createConnection() as con:            
             for cmd in commands:
                 response = con.send_command(cmd) 

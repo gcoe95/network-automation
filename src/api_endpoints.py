@@ -4,10 +4,6 @@ from cisco import CiscoNC, CiscoSSH
 import json
 import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--dry', dest='dry', action='store_true', default=False)
-dryRun = parser.parse_args().dry
-
 app = Flask(__name__)
 
 @app.route('/<hostname>/interfaces', methods=["GET"])
@@ -63,7 +59,16 @@ def getInterfacesSSH(hostname: str):
     response = cisco.getInterfaces()
     return (jsonify(response[0]), response[1])
 
-if __name__ == "__main__":
+def main(host, port, dry):
+    global dryRun
+    dryRun=dry
     app.run(port=8080, host="0.0.0.0")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--dry', dest='dry', action='store_true', default=False)
+    dry = parser.parse_args().dry
+    main(port=8080, host="0.0.0.0", dry=dry)
 
     
