@@ -1,8 +1,9 @@
 from behave import *
-import multiprocessing, requests, time
+import multiprocessing, time, os
+from jinja2 import Environment, FileSystemLoader, StrictUndefined
 import api_endpoints
 
-@given(u"I have flask app in dry run mode")
+@given("I have flask app in dry run mode")
 def step_impl(context):
     context.p = multiprocessing.Process(target=api_endpoints.main, kwargs={"port":8080, "host":"0.0.0.0", "dry":True})
     context.p.daemon = True
@@ -10,21 +11,27 @@ def step_impl(context):
     time.sleep(1)
     assert(True)
 
-@given(u"I send a get request to url")
+@then("The body should contain the CLI commands")
 def step_impl(context):
-    url = "http://127.0.0.1:8080/ssh/sandbox-iosxr-1.cisco.com/interfaces"
-    context.get_response = requests.get(url)
+    assert(context.response.json() == ["term len 0","show ip int br"])
 
-@then(u"I should get a successful reponse code")
+@then("The body should contain the create netconf")
 def step_impl(context):
-    assert(context.get_response.ok)
+    netconf = getData("loopback_create.xml", context.body)
+    assert(context.response.text == netconf)
 
-@then(u"The body should contain the CLI commands")
+@then("The body should contain the delete netconf")
 def step_impl(context):
-    print(context.get_response.text)
-    assert(context.get_response.text == '["term len 0","show ip int br"]')
+    netconf = getData("loopback_delete.xml", context.interface)
+    assert(context.response.text == netconf)
 
-@given(u"I stop the server")
-def step_impl(context):
-    print("stopping server")
-    context.p.terminate()
+def getData(templateName, params):
+    path = os.path.realpath(__file__)  
+    path = os.path.dirname(os.path.abspath(path)).replace("test/steps", "src")
+    env = Environment(
+        autoescape=False,
+        loader=FileSystemLoader(f"{path}/templates/"),
+        trim_blocks=False,
+        undefined=StrictUndefined
+    )
+    return env.get_template(templateName).render(params)
