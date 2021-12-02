@@ -16,6 +16,7 @@ def step_impl(context):
     netconf = getData("loopback_delete.xml", context.interface)
     assert(context.response.text == netconf)
 
+# Returns the text from a template file
 def getData(templateName, params):
     path = os.path.realpath(__file__)  
     path = os.path.dirname(os.path.abspath(path)).replace("test/steps", "src")
