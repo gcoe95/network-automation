@@ -1,15 +1,6 @@
 from behave import *
 import multiprocessing, time, os
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
-import api_endpoints
-
-@given("I have flask app in dry run mode")
-def step_impl(context):
-    context.p = multiprocessing.Process(target=api_endpoints.main, kwargs={"port":8080, "host":"0.0.0.0", "dry":True})
-    context.p.daemon = True
-    context.p.start()
-    time.sleep(1)
-    assert(True)
 
 @then("The body should contain the CLI commands")
 def step_impl(context):

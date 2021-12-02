@@ -17,6 +17,3 @@ Scenario: Delete Loopback
     Given I send a DELETE request
     Then I should get a successful reponse code
     And The body should contain the delete netconf
-
-Scenario: Stop Server
-    Given I stop the server
